@@ -1,0 +1,289 @@
+{% extends "index.html" %}
+
+{% block title_append%}: Prefab Inventory{% endblock %}
+
+{% block base_head %}
+    <style>
+        .tbl-col { text-align: center; }
+
+        #tbl-col-prefab { width: 20%; }
+        #tbl-col-specs { width: 20%; }
+        #tbl-col-color { width: 20%; }
+        #tbl-col-qty { width: 20%; }
+        #tbl-col-srp { width: 20%; }
+        
+    </style>
+{% endblock %}
+
+{% block inventory_collapse %}show{% endblock %}
+
+{% block header %}
+<div class="row border-bottom">
+    <h1>Prefab Inventory</h1>
+</div>
+{% endblock %}
+
+{% block content %}
+    <div class="d-flex flex-column mh-100 w-100 overflow-auto">
+        <div class="d-flex border border-bottom-0 shadow-sm py-2" id="table-header">
+            <div id="tbl-col-prefab" class="tbl-col border-end">Prefab</div>
+            <div id="tbl-col-specs"   class="tbl-col border-end">Size</div>
+            <div id="tbl-col-color"  class="tbl-col border-end">Color</div>
+            <div id="tbl-col-qty"    class="tbl-col border-end">Quantity</div>
+            <div id="tbl-col-srp"    class="tbl-col">SRP</div>
+        </div>
+        <div class="d-flex flex-column border border-top-0 overflow-auto" id="table-body">
+            {% for prefab in prefabs %}
+                <a class="text-dark flex-shrink-0 border-top" href="#details-{{ prefab.id }}" data-bs-toggle="collapse" style="text-decoration: none;">
+                    <div class="d-flex py-2">
+                        <div id="tbl-col-prefab" class="tbl-col">{{ prefab.name }}</div>
+                        <div id="tbl-col-specs"  class="tbl-col">{{ prefab.specs }}</div>
+                        <div id="tbl-col-color"  class="tbl-col">{{ prefab.color }}</div>
+                        <div id="tbl-col-qty"    class="tbl-col">{{ prefab.qty }}</div>
+                        <div id="tbl-col-srp"    class="tbl-col">{{ prefab.srp }}</div>
+                    </div>
+                </a>
+                <div class="collapse" id="details-{{ prefab.id }}">
+                    <!-- <div class="border-top mx-auto" style="width: 98%;"></div>
+                    <div class="px-4 py-2">
+                        <div class="d-flex border border-bottom-0 shadow-sm py-2">
+                            <div id="tbl-col-prefab-item-id"    class="tbl-col flex-fill">ID</div>
+                            <div id="tbl-col-prefab-item"    class="tbl-col flex-fill">Item</div>
+                            <div id="tbl-col-qty-per-prefab" class="tbl-col flex-fill">Qty. per prefab</div>
+                        </div>
+                        <div class="d-flex flex-column border border-top-0 overflow-auto">
+                            {% for item in prefab_items %}
+                                <div class="flex-shrink-0 border-top">
+                                    <div class="d-flex py-2">
+                                        <div id="tbl-col-prefab-item-id"    class="tbl-col flex-fill">{{ item.id }}</div>
+                                        <div id="tbl-col-prefab-item"    class="tbl-col flex-fill">{{ item.name }}</div>
+                                        <div id="tbl-col-qty-per-prefab" class="tbl-col flex-fill">{{ item.qty_per_prefab }}</div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div> -->
+                    <div class="border-top mx-auto" style="width: 98%;"></div>
+                    <div class="px-4 py-2">
+                        <div class="d-flex justify-content-end">
+                            <button type="button" class="btn btn-danger me-2" data-bs-toggle="modal" data-bs-target="#delete-modal" onclick="deleteModal(this.id);" id="{{ prefab.id }}">Delete</button>
+                            <!-- <button type="submit" class="btn btn-primary me-2" data-bs-toggle="modal" data-bs-target="#prefab-item-modal" href="/prefabs/get-prefab-item-data" onclick="fetchFormData(this); fetchPrefabItemData(this.id);" id="{{ prefab.id }}" data-bs-modal-mode="configure">Configure items per prefab</button> -->
+                            <button type="submit" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#prefab-modal" href="/prefabs/get-form-data" onclick="fetchFormData(this); fetchPrefabData(this.id);" id="{{ prefab.id }}" data-bs-modal-mode="edit">Edit</button>
+                        </div>
+                    </div>
+                </div> <!-- collapse end -->
+            {% endfor %}
+        </div>
+        <div class="flex-grow-1 pt-3 px-1">
+            <div class="d-flex">
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#prefab-modal" href="/prefabs/get-form-data" onclick="fetchFormData(this);"  data-bs-modal-mode="create">Create new prefab</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- modal start -->
+    <div class="modal fade" data-bs-backdrop="static" id="prefab-modal">
+        <div class="modal-dialog"><div class="modal-content">
+
+            <div class="modal-header">
+                <h4 class="modal-title" id="prefab-modal-title">Create new prefab</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <form method="POST" autocomplete="off" id="modal-form" action="/prefabs/create-prefab">
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col">
+                            <label for="prefab-name" class="form-label">Prefab name:</label>
+                            <input type="text" class="form-control" id="prefab-name" name="prefab-name" list="prefab-name-list">
+                            <datalist id="prefab-name-list"></datalist>
+                        </div>
+                        <div class="col">
+                            <label for="prefab-specs" class="form-label">Size:</label>
+                            <input type="text" class="form-control" id="prefab-specs" name="prefab-specs" list="prefab-specs-list">
+                            <datalist id="prefab-specs-list"></datalist>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <label for="prefab-color" class="form-label">Color:</label>
+                            <input type="text" name="prefab-color" id="prefab-color" class="form-control" list="prefab-color-list">
+                            <datalist id="prefab-color-list"></datalist>
+                        </div>
+                        <div class="col">
+                            <label for="prefab-srp" class="form-label">SRP:</label>
+                            <input type="number" name="prefab-srp" id="prefab-srp" class="form-control">
+                        </div>
+                        <div class="col">
+                            <label for="prefab-qty" class="form-label">Total qty.:</label>
+                            <input type="number" name="prefab-qty" id="prefab-qty" class="form-control">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <input type="hidden" name="prefab-id" id="prefab-id" class="form-control" value="">
+                    <input type="hidden" name="prefab-qt-desc" id="prefab-qt-desc" class="form-control" value="">
+                    <button type="button" class="btn btn-danger" role="button" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Confirm</button>
+                </div>
+            </form>
+
+        </div></div>
+    </div>
+    <!-- modal end -->
+
+    <div class="modal fade" data-bs-backdrop="static" id="prefab-item-modal">
+        <div class="modal-dialog"><div class="modal-content">
+
+            <div class="modal-header">
+                <h4 class="modal-title" id="prefab-modal-title">Configure prefab item</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <form method="POST" autocomplete="off" id="modal-form" action="/prefabs/configure-prefab-items">
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="px-4 py-2">
+                            <div class="d-flex border border-bottom-0 shadow-sm py-2">
+                                <div id="tbl-col-prefab-item-id" class="tbl-col flex-fill">Item ID</div>
+                                <div id="tbl-col-qty-per-prefab" class="tbl-col flex-fill">Qty. per prefab</div>
+                                <div id="tbl-col-qty-per-prefab" class="tbl-col flex-fill">Action</div>
+                            </div>
+                            <div class="d-flex flex-column border border-top-0 overflow-auto" id="prefab-modal-table">
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 pt-3 px-1">
+                            <div class="d-flex">
+                                <button type="button" class="btn btn-primary" onclick="addRow();"  data-bs-modal-mode="create">Create new prefab</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <input type="hidden" name="prefab-id" id="prefab-id" class="form-control" value="">
+                    <button type="button" class="btn btn-danger" role="button" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Confirm</button>
+                </div>
+            </form>
+
+        </div></div>
+    </div>
+
+    <!-- modal start -->
+    <div class="modal fade" id="delete-modal">
+        <div class="modal-dialog"><div class="modal-content">
+
+            <div class="modal-header">
+                <h4 class="modal-title">Warning!</h4>
+            </div>
+
+            <div class="modal-body">
+                <p>You are deleting a record. Do you want to continue?</p>
+            </div>
+
+            <div class="modal-footer d-flex justify-content-between">
+                <a type="button" class="btn btn-danger" id="confirm-delete">Confirm</a>
+                <button type="button" class="btn btn-primary" role="button" data-bs-dismiss="modal">Cancel</button>
+            </div>
+
+        </div></div>
+    </div>
+    <!-- modal end -->
+
+    <script>
+        function fetchFormData(button) {
+            fetch("/prefabs/get-form-data")  // Call the Flask backend route
+            .then(response => response.json())  // Convert response to JSON
+            .then(data => {
+                for (let key in data) {
+                    let output = "";
+
+                    data[key].forEach (item => {
+                        output += `<option value='${item}'>`;
+                    });
+
+                    console.log(`prefab-${key}-list`);
+
+                    document.getElementById(`prefab-${key}-list`).innerHTML = output;
+                }
+            })
+            .catch(error => console.error("Error:", error));
+        }
+
+        function PrefabData(prefab_id) {
+            document.getElementById('modal-form').action = "/prefabs/edit-prefab";
+            document.getElementById('prefab-modal-title').innerHTML = "Edit prefab";
+        
+            fetch('/prefabs/get-prefab-data', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ 'prefab_id': prefab_id }),
+            })
+            .then(response => response.json())
+            .then(data => {
+
+                document.getElementById('prefab-id').value = data.id;
+                document.getElementById('prefab-name').value = data.name;
+                document.getElementById('prefab-specs').value = data.specs;
+                document.getElementById('prefab-color').value = data.color;
+                document.getElementById('prefab-srp').value = data.srp;
+                document.getElementById('prefab-qty').value = data.qty;
+
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+        }
+
+        function PrefabItemData(prefab_id) {
+            fetch('/prefabs/get-prefab-item-data', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ 'prefab_id': prefab_id }),
+            })
+            .then(response => response.json())
+            .then(data => {
+
+                document.getElementById('prefab-id').value = data.id;
+                document.getElementById('prefab-name').value = data.name;
+                document.getElementById('prefab-specs').value = data.specs;
+                document.getElementById('prefab-color').value = data.color;
+                document.getElementById('prefab-srp').value = data.srp;
+                document.getElementById('prefab-qty').value = data.qty;
+
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+        }
+
+        function deleteModal(id) {
+            document.getElementById('confirm-delete').href = `/prefabs/delete/${id}`;
+        }
+
+        function addRow() {
+            var row_count =  document.getElementById('prefab-modal-table').children.length;
+            document.getElementById('prefab-modal-table').innerHTML += `
+            <div class="d-flex py-2 flex-shrink-0 border-top" id="prefab-modal-table-${row_count}">
+                <div id="tbl-col-prefab-item-id"     class="tbl-col flex-fill">
+                    <input type="text" name="prefab-srp" id="prefab-item-id" class="form-control" list="">
+                    <datalist id="prefab-item"></datalist>
+                </div>
+                <div id="tbl-col-qty-per-prefab"     class="tbl-col flex-fill">
+                    <input type="number" name="prefab-srp" id="prefab-item-qty-per" class="form-control">
+                </div>
+                <div id="tbl-col-prefab-item-action" class="tbl-col flex-fill">
+                    <button type="button" class="btn btn-danger" onclick="this.parentNode.parentNode.remove();">Delete</button>
+                </div>
+            </div>
+            `;
+        }
+
+    </script>
+{% endblock %}

@@ -1,0 +1,40 @@
+{% extends "index.html" %}
+
+{% block content %}
+    <h1>Inventory</h1>
+    <!-- <ul class="nav nav-tabs">
+        <li class="nav-item">
+            <a href="#" class="nav-link active" data-bs-toggle="tab">Prefabs</a>
+        </li>
+        <li class="nav-item">
+            <a href="#" class="nav-link" data-bs-toggle="tab">Items</a>
+        </li>
+        <li class="nav-item">
+            <a href="#" class="nav-link active" data-bs-toggle="tab">Transactions</a>
+        </li>
+    </ul> -->
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Prefab</th>
+                    <th>Size</th>
+                    <th>Color</th>
+                    <th>Quantity</th>
+                    <th>Price</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for prefab in prefabs %}
+                    <tr>
+                        <td>{{ prefab.name }}</td>
+                        <td>{{ prefab.size }}</td>
+                        <td>{{ prefab.color }}</td>
+                        <td>{{ prefab.quantity }}</td>
+                        <td>{{ prefab.price }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}
