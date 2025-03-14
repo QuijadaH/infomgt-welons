@@ -68,7 +68,7 @@
                         <div class="d-flex justify-content-end">
                             <button type="button" class="btn btn-danger me-2" data-bs-toggle="modal" data-bs-target="#delete-modal" onclick="deleteModal(this.id);" id="{{ prefab.id }}">Delete</button>
                             <!-- <button type="submit" class="btn btn-primary me-2" data-bs-toggle="modal" data-bs-target="#prefab-item-modal" href="/prefabs/get-prefab-item-data" onclick="fetchFormData(this); fetchPrefabItemData(this.id);" id="{{ prefab.id }}" data-bs-modal-mode="configure">Configure items per prefab</button> -->
-                            <button type="submit" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#prefab-modal" href="/prefabs/get-form-data" onclick="fetchFormData(this); fetchPrefabData(this.id);" id="{{ prefab.id }}" data-bs-modal-mode="edit">Edit</button>
+                            <button type="submit" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#prefab-modal" href="/prefabs/get-form-data" onclick="fetchFormData(this); PrefabData(this.id);" id="{{ prefab.id }}" data-bs-modal-mode="edit">Edit</button>
                         </div>
                     </div>
                 </div> <!-- collapse end -->

@@ -555,6 +555,43 @@ def create_prefab():
 
     return redirect(url_for('prefabs_inventory'))
 
+@app.route("/prefabs/get-prefab-data", methods=["POST"])
+def get_prefab_data():
+    try:
+        prefab_id = request.json['prefab_id']
+
+        con = get_db_connection()
+        cur = con.cursor(dictionary = True)
+
+        sql = f'''
+        select
+            id,
+            name_id as name,
+            specs_id as specs,
+            color_id as color,
+            quantity as qty,
+            official_srp as srp
+        from prefab
+        where prefab.id = {prefab_id}
+        '''
+        cur.execute(sql)
+        record = cur.fetchone()
+
+        print(record)
+
+        for key, value in record.items():
+            if key in ('id', 'qty', 'srp'): continue
+            if value == None: continue
+
+            cur.execute(f"select * from {key}_lookup where id = {value}")
+            record[key] = cur.fetchone()[key]
+
+        return jsonify(record)
+        
+    except mysql.connector.Error as err:
+        print(err)
+        return jsonify({"message": ""})
+
 @app.route("/items/get-prefab-item-data", methods=["POST"])
 def get_prefab_item_data():
     try:
@@ -599,6 +636,8 @@ def update_prefab():
         color_id = 'null'
 
         request_dict = request.form.to_dict()
+
+        prefab_id = request_dict['prefab-id']
 
         for key, value in request_dict.items():
             data = None
@@ -652,13 +691,13 @@ def update_prefab():
         sql = f'insert into prefab values ({request_dict['prefab-id']}, {name_id}, {specs_id}, {color_id}, {request_dict['prefab-qt-desc']}, {request_dict['prefab-qty']}, {request_dict['prefab-srp']})'
 
         sql = f'''
-        update item
+        update prefab
         set
             name_id = {name_id},
             specs_id = {specs_id},
             color_id = {color_id},
             quantity = {request_dict['prefab-qty']},
-            official_srp = {request_dict['prefab-srp']},
+            official_srp = {request_dict['prefab-srp']}
         where id = {prefab_id}
         '''
 
